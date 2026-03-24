@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # ──────────────────── Windows EXE ────────────────────
   build-windows:
@@ -27,14 +30,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install -r requirements.txt
+          pip install pyinstaller wheel
+          # Install core runtime deps only (skip heavy optional GPU deps)
+          pip install opencv-python-headless numpy ultralytics onnxruntime pillow
 
       - name: Build EXE with PyInstaller
         run: |
           pyinstaller --noconfirm --onefile --windowed `
             --name "YOLO-FaceRecognition" `
-            --add-data "requirements.txt;." `
+            --hidden-import "cv2" `
+            --hidden-import "numpy" `
+            --hidden-import "PIL" `
+            --hidden-import "tkinter" `
+            --collect-all "ultralytics" `
+            --collect-all "onnxruntime" `
             main.py
 
       - name: Upload EXE to Release
@@ -57,36 +66,56 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install system tools
+        run: |
+          brew install create-dmg || true
+
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller create-dmg
-          pip install -r requirements.txt
+          pip install pyinstaller wheel
+          # Install core runtime deps
+          pip install opencv-python-headless numpy ultralytics onnxruntime pillow
 
       - name: Build .app with PyInstaller
         run: |
           pyinstaller --noconfirm --onefile --windowed \
             --name "YOLO-FaceRecognition" \
-            --add-data "requirements.txt:." \
+            --hidden-import "cv2" \
+            --hidden-import "numpy" \
+            --hidden-import "PIL" \
+            --hidden-import "tkinter" \
+            --collect-all "ultralytics" \
+            --collect-all "onnxruntime" \
             main.py
 
-      - name: Package .app into DMG
+      - name: Package into DMG
         run: |
-          mkdir -p dist/dmg
-          cp -R dist/YOLO-FaceRecognition.app dist/dmg/
-          create-dmg \
-            --volname "YOLO Face Recognition" \
-            --volicon "dist/dmg/YOLO-FaceRecognition.app/Contents/Resources/icon-windowed.icns" \
-            --window-pos 200 120 \
-            --window-size 800 400 \
-            --icon-size 100 \
-            --icon "YOLO-FaceRecognition.app" 200 190 \
-            --hide-extension "YOLO-FaceRecognition.app" \
-            --app-drop-link 600 185 \
-            "dist/YOLO-FaceRecognition.dmg" \
-            "dist/dmg/" || \
-          hdiutil create -volname "YOLO-FaceRecognition" -srcfolder dist/YOLO-FaceRecognition.app \
-            -ov -format UDZO "dist/YOLO-FaceRecognition.dmg"
+          mkdir -p dist/dmg_staging
+          cp -R "dist/YOLO-FaceRecognition.app" dist/dmg_staging/
+
+          # Try create-dmg first, fall back to hdiutil
+          if command -v create-dmg &>/dev/null; then
+            create-dmg \
+              --volname "YOLO Face Recognition" \
+              --window-pos 200 120 \
+              --window-size 600 400 \
+              --icon-size 100 \
+              --app-drop-link 450 185 \
+              "dist/YOLO-FaceRecognition.dmg" \
+              "dist/dmg_staging/" || \
+            hdiutil create \
+              -volname "YOLO-FaceRecognition" \
+              -srcfolder dist/dmg_staging \
+              -ov -format UDZO \
+              "dist/YOLO-FaceRecognition.dmg"
+          else
+            hdiutil create \
+              -volname "YOLO-FaceRecognition" \
+              -srcfolder dist/dmg_staging \
+              -ov -format UDZO \
+              "dist/YOLO-FaceRecognition.dmg"
+          fi
 
       - name: Upload DMG to Release
         uses: softprops/action-gh-release@v2
