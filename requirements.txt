@@ -1,0 +1,48 @@
+# YOLOv11 即時人臉辨識系統 — 依賴套件
+# 安裝指令：pip install -r requirements.txt
+
+# ── 核心 CV / ML ─────────────────────────────
+ultralytics>=8.3.0          # YOLOv11 需要 8.3.0+
+onnxruntime>=1.18.0         # MobileFaceNet 推理（CPU）
+                             # GPU 用戶改用：onnxruntime-gpu>=1.18.0
+opencv-python>=4.9.0        # 影像處理、攝影機存取
+numpy>=1.24.0,<2.0.0        # numpy 2.x 與部分 ONNX/CV 套件不相容
+
+# ── GUI ──────────────────────────────────────
+Pillow>=10.0.0              # PIL: frame → Tkinter PhotoImage 轉換
+# tkinter 為 Python 標準庫，無需安裝（Linux 需 python3-tk）
+
+# ── 音效 ─────────────────────────────────────
+pygame>=2.5.0               # 警報音效播放（跨平台）
+
+# ── ML 工具 ──────────────────────────────────
+scikit-learn>=1.4.0         # 可選：KNN 備用分類器
+
+# ── 網路下載 ─────────────────────────────────
+requests>=2.31.0            # 模型下載（補充 urllib）
+tqdm>=4.66.0                # 下載進度顯示（CLI）
+
+# ──────────────────────────────────────────────
+# 平台特定說明（不影響 pip install）：
+# ──────────────────────────────────────────────
+# macOS Apple Silicon (M1/M2/M3)：
+#   onnxruntime 自動啟用 CoreML provider（2~3x 加速）
+#   無需額外安裝
+#
+# Windows：
+#   pip install ultralytics>=8.3.0 onnxruntime opencv-python numpy Pillow pygame scikit-learn
+#   tkinter 已內建於 python.org 官方安裝包
+#
+# Linux (Ubuntu/Debian)：
+#   sudo apt install python3-tk libsdl2-mixer-2.0-0
+#   pip install -r requirements.txt
+#
+# Raspberry Pi 4/5 (aarch64/armv7l)：
+#   pip install onnxruntime  # ARM wheels 於 1.16+ 已在 PyPI 提供
+#   pip install ultralytics>=8.3.0
+#   建議設定：DETECT_IMG_SIZE=320, SKIP_FRAMES=4, CAMERA_FPS=15
+#   若使用 PiCamera 3：pip install picamera2
+#
+# GPU 加速（NVIDIA CUDA）：
+#   pip install onnxruntime-gpu>=1.18.0
+#   在 config.py 設定 DETECT_DEVICE="cuda:0"

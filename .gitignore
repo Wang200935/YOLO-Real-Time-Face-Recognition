@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Data and Models
+data/db/*.sqlite
+data/db/*.db
+data/db/*.sqlite-wal
+data/db/*.sqlite-shm
+data/models/*.pt
+data/models/*.onnx
+data/screenshots/
+data/logs/
+data/*/
+
+
+# IDE and System
+.DS_Store
+.vscode/
+.idea/
+.claude/
+
+# YOLO
+runs/
