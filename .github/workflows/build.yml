@@ -1,0 +1,95 @@
+name: Build Installers (EXE & DMG)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ──────────────────── Windows EXE ────────────────────
+  build-windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build EXE with PyInstaller
+        run: |
+          pyinstaller --noconfirm --onefile --windowed `
+            --name "YOLO-FaceRecognition" `
+            --add-data "requirements.txt;." `
+            main.py
+
+      - name: Upload EXE to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/YOLO-FaceRecognition.exe
+          tag_name: ${{ github.ref_name }}
+
+  # ──────────────────── macOS DMG ────────────────────
+  build-macos:
+    name: Build macOS DMG
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller create-dmg
+          pip install -r requirements.txt
+
+      - name: Build .app with PyInstaller
+        run: |
+          pyinstaller --noconfirm --onefile --windowed \
+            --name "YOLO-FaceRecognition" \
+            --add-data "requirements.txt:." \
+            main.py
+
+      - name: Package .app into DMG
+        run: |
+          mkdir -p dist/dmg
+          cp -R dist/YOLO-FaceRecognition.app dist/dmg/
+          create-dmg \
+            --volname "YOLO Face Recognition" \
+            --volicon "dist/dmg/YOLO-FaceRecognition.app/Contents/Resources/icon-windowed.icns" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "YOLO-FaceRecognition.app" 200 190 \
+            --hide-extension "YOLO-FaceRecognition.app" \
+            --app-drop-link 600 185 \
+            "dist/YOLO-FaceRecognition.dmg" \
+            "dist/dmg/" || \
+          hdiutil create -volname "YOLO-FaceRecognition" -srcfolder dist/YOLO-FaceRecognition.app \
+            -ov -format UDZO "dist/YOLO-FaceRecognition.dmg"
+
+      - name: Upload DMG to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/YOLO-FaceRecognition.dmg
+          tag_name: ${{ github.ref_name }}
