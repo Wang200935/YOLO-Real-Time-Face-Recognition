@@ -204,8 +204,3 @@ CameraThread ──► DetectionThread ──► RecognitionThread
 - 降低摄像头分辨率：`CAMERA_WIDTH=320, CAMERA_HEIGHT=240`
 </details>
 
----
-
-## 📄 许可
-
-MIT License — 详见 [LICENSE](../LICENSE)
