@@ -237,9 +237,3 @@ pip install -r requirements.txt
 ```
 Pi 4 建議使用 `DETECT_IMG_SIZE=320` 和 `SKIP_FRAMES=4`。
 </details>
-
----
-
-## 📄 授權
-
-MIT License — 詳見 [LICENSE](../LICENSE)
