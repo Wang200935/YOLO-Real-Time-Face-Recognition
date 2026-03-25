@@ -309,10 +309,3 @@ pip install -r requirements.txt
 ```
 Use `DETECT_IMG_SIZE=320` and `SKIP_FRAMES=4` for smooth performance on Pi 4.
 </details>
-
----
-
-## 📄 License
-
-MIT License — free to use, modify, and distribute.
-See [LICENSE](LICENSE) for the full text.
