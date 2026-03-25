@@ -162,17 +162,17 @@ photos/
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌───────────────────┐
-│   CameraThread  │────▶│  DetectionThread  │────▶│ RecognitionThread │
-│  (OpenCV 擷取)  │     │ (YOLOv11-Pose    │     │ (MobileFaceNet   │
-│                 │     │  推理)            │     │  餘弦比對)        │
+│   CameraThread  │────▶│  DetectionThread │────▶│ RecognitionThread │
+│  (OpenCV 擷取)   │     │ (YOLOv11-Pose    │     │ (MobileFaceNet    │
+│                 │     │  推理)            │     │  餘弦比對)         │
 └─────────────────┘     └──────────────────┘     └────────┬──────────┘
                                                            │
                               ┌────────────────────────────┘
                               ▼
                     ┌──────────────────┐     ┌───────────────────────┐
-                    │  GUI 主執行緒    │     │    DBWriterThread     │
-                    │  (Tkinter 繪製 + │     │  (SQLite WAL 非同步   │
-                    │   增量學習觸發)  │     │   批次寫入)           │
+                    │  GUI 主執行緒     │     │    DBWriterThread      │
+                    │  (Tkinter 繪製 +  │     │  (SQLite WAL 非同步    │
+                    │   增量學習觸發)    │     │   批次寫入)             │
                     └──────────────────┘     └───────────────────────┘
 ```
 
